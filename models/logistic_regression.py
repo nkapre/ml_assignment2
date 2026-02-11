@@ -12,7 +12,11 @@ class CustomLogisticRegression:
         return 1 / (1 + np.exp(-z))
 
     def fit(self, X, y):
+# Convert to numpy arrays if they aren't already
+        X = np.array(X)
+        y = np.array(y)
         n_samples, n_features = X.shape
+
         self.weights = np.zeros(n_features)
         self.bias = 0
 
