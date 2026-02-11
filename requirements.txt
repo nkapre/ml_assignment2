@@ -1,0 +1,8 @@
+# requirements.txt
+streamlit
+scikit-learn
+numpy
+pandas
+matplotlib
+seaborn
+xgboost
