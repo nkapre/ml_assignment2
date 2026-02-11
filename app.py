@@ -14,7 +14,7 @@ from models.decision_tree import run_decision_tree
 from models.knn import run_knn
 from models.naive_bayes import run_naive_bayes
 from models.random_forest import run_random_forest
-from models.xgboost_model import run_xgboost
+from models.xg_boost_model import run_xgboost
 
 st.set_page_config(page_title="Churn Classification (From Scratch)", layout="wide")
 
