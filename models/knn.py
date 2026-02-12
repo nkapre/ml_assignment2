@@ -8,7 +8,7 @@ class CustomKNN:
         self.k = k
 
     def fit(self, X, y):
-        ####self.X_train = X
+        self.X_train = X
         ####self.y_train = y
         self.tree = KDTree(X)
         self.y_train = y
