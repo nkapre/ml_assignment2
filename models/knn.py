@@ -1,44 +1,38 @@
 import numpy as np
 from collections import Counter
+from scipy.spatial import KDTree
 
 class CustomKNN:
     def __init__(self, k=3):
         self.k = k
 
     def fit(self, X, y):
-        self.X_train = X
+        ####self.X_train = X
+        ####self.y_train = y
+        self.tree = KDTree(X)
         self.y_train = y
 
-
     def predict(self, X):
-        X = np.array(X)
-        # 1. Vectorized Euclidean Distance: sqrt(sum((X - X_train)^2))
-        # Using broadcasting to avoid the 'for x_train in self.X_train' loop
-        # (A-B)^2 = A^2 + B^2 - 2AB
-        dists = np.sqrt(
-            np.sum(X**2, axis=1)[:, np.newaxis] + 
-            np.sum(self.X_train**2, axis=1) - 
-            2 * np.dot(X, self.X_train.T)
-        )
-
-        # 2. Get the indices of the k smallest distances
-        k_indices = np.argsort(dists, axis=1)[:, :self.k]
-
-        # 3. Vote for labels
-        predictions = []
-        for indices in k_indices:
-            k_nearest_labels = self.y_train[indices]
-            most_common = Counter(k_nearest_labels).most_common(1)
-            predictions.append(most_common[0][0])
-            
+        predictions = [self._predict(x) for x in X]
         return np.array(predictions)
 
     def _predict(self, x):
-        distances = [np.sqrt(np.sum((x - x_train)**2)) for x_train in self.X_train]
-        k_indices = np.argsort(distances)[:self.k]
-        k_nearest_labels = [self.y_train[i] for i in k_indices]
-        most_common = Counter(k_nearest_labels).most_common(1)
-        return most_common[0][0]
+        # X: (m_samples, n_features), self.X_train: (n_samples, n_features)
+        # Compute all distances at once using broadcasting
+        # (a-b)^2 = a^2 - 2ab + b^2
+        dists = np.sqrt(np.sum(X**2, axis=1)[:, np.newaxis] + 
+                        np.sum(self.X_train**2, axis=1) - 
+                        2 * np.dot(X, self.X_train.T))
+        
+        # Get indices of k smallest distances for each row
+        ####k_indices = np.argsort(dists, axis=1)[:, :self.k]
+        _, k_indices = self.tree.query(X, k=self.k)
+        
+        # Map indices to labels
+        k_nearest_labels = self.y_train[k_indices]
+        
+        # Return most common label per row
+        return np.array([Counter(row).most_common(1)[0][0] for row in k_nearest_labels])
 
 def run_knn(X, y):
     model = CustomKNN(k=5)
