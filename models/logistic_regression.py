@@ -12,14 +12,17 @@ class CustomLogisticRegression:
         z = np.array(z, dtype=float)
         return 1 / (1 + np.exp(-z))
 
+
     def fit(self, X, y):
-        # Convert to numpy arrays if they aren't already
-        X = np.array(X)
-        y = np.array(y)
+        # 1. Force conversion to NumPy float64 arrays to avoid 'O' (Object) dtypes
+        X = np.array(X, dtype=np.float64)
+        y = np.array(y, dtype=np.float64).reshape(-1, 1) # Ensure y is a column vector
+
         n_samples, n_features = X.shape
 
-        self.weights = np.zeros(n_features)
-        self.bias = 0
+        # 2. Initialize weights explicitly as float64
+        self.weights = np.zeros((n_features, 1), dtype=np.float64)
+        self.bias = 0.0
 
         for _ in range(self.iterations):
             model = np.dot(X, self.weights) + self.bias
