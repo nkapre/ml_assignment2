@@ -1,7 +1,6 @@
 import numpy as np
 from collections import Counter
 from scipy.spatial import KDTree
-import streamlit as st
 
 class CustomKNN:
     def __init__(self, k=3):
@@ -9,8 +8,6 @@ class CustomKNN:
 
     def fit(self, X, y):
         self.X_train = X
-        ####self.y_train = y
-        self.tree = KDTree(X)
         self.y_train = y
 
     def predict(self, X):
@@ -26,8 +23,7 @@ class CustomKNN:
                         2 * np.dot(X, self.X_train.T))
         
         # Get indices of k smallest distances for each row
-        ####k_indices = np.argsort(dists, axis=1)[:, :self.k]
-        _, k_indices = self.tree.query(X, k=self.k)
+        k_indices = np.argsort(dists, axis=1)[:, :self.k]
         
         # Map indices to labels
         k_nearest_labels = self.y_train[k_indices]
@@ -35,7 +31,6 @@ class CustomKNN:
         # Return most common label per row
         return np.array([Counter(row).most_common(1)[0][0] for row in k_nearest_labels])
 
-@st.cache_data
 def run_knn(X, y):
     model = CustomKNN(k=5)
     model.fit(X.values, y.values)
