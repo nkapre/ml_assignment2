@@ -1,6 +1,7 @@
 import numpy as np
 from collections import Counter
 from scipy.spatial import KDTree
+import streamlit as st
 
 class CustomKNN:
     def __init__(self, k=3):
