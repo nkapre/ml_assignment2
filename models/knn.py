@@ -34,6 +34,7 @@ class CustomKNN:
         # Return most common label per row
         return np.array([Counter(row).most_common(1)[0][0] for row in k_nearest_labels])
 
+@st.cache_data
 def run_knn(X, y):
     model = CustomKNN(k=5)
     model.fit(X.values, y.values)
