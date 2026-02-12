@@ -9,7 +9,8 @@ class CustomLogisticRegression:
 
     def sigmoid(self, z):
         z = np.clip(z, -500, 500)
-        return 1 / (1 + np.exp(-z))
+        exponent = np.exp(-z)
+        return 1 / (1 + exponent)
 
     def fit(self, X, y):
 # Convert to numpy arrays if they aren't already
