@@ -7,13 +7,22 @@ class CustomKNN:
 
     def fit(self, X, y):
         print ("Inside fit")
-        self.X_train = X
-        self.y_train = y
+        #self.X_train = X
+        #self.y_train = y
+        self.X_train = np.array(X, dtype=np.float64)
+        self.y_train = np.array(y)
 
     def predict(self, X):
-        print ("Inside predict")
+        # Ensure the input to be predicted is also float64
+        X = np.array(X, dtype=np.float64)
         predictions = [self._predict(x) for x in X]
         return np.array(predictions)
+
+
+    #def predict(self, X):
+    #    print ("Inside predict")
+    #    predictions = [self._predict(x) for x in X]
+    #    return np.array(predictions)
 
     #def _predict(self, x):
     #    print ("Predict Step 1")
@@ -32,7 +41,7 @@ class CustomKNN:
         # 1. Vectorized Euclidean Distance
         # This replaces the list comprehension loop
         print ("Predict step 1")
-        distances = np.sqrt(np.sum((self.X_train - x)**2, axis=1))
+        distances = [np.sqrt(np.sum((self.X_train - x)**2, axis=1))]
         
         # 2. Use argpartition instead of argsort
         # argpartition is O(N) while argsort is O(N log N)
