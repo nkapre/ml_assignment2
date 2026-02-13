@@ -14,10 +14,16 @@ class CustomKNN:
         return np.array(predictions)
 
     def _predict(self, x):
+        print ("Predict Step 1")
         distances = [np.sqrt(np.sum((x - x_train)**2)) for x_train in self.X_train]
+        print ("Predict Step 1")
         k_indices = np.argsort(distances)[:self.k]
+        print ("Predict Step 1")
         k_nearest_labels = [self.y_train[i] for i in k_indices]
+        print ("Predict Step 1")
         most_common = Counter(k_nearest_labels).most_common(1)
+        print ("Predict Step 1")
+        
         return most_common[0][0]
 
 def run_knn(X, y):
