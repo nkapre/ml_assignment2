@@ -53,9 +53,6 @@ if uploaded_file:
     if 'Churn' in processed_df.columns:
         X = processed_df.drop(columns=['Churn'])
         y = processed_df['Churn']
-
-        X = processed_df.iloc[:, :-1].values.astype(float) # Ensure float type
-        y = processed_df.iloc[:, -1].values
         
         # Mapping model selection to the imported scratch functions
         model_functions = {
