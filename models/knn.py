@@ -41,7 +41,7 @@ class CustomKNN:
         # 1. Vectorized Euclidean Distance
         # This replaces the list comprehension loop
         print ("Predict step 1")
-        distances = [np.sqrt(np.sum((self.X_train - x)**2, axis=1))]
+        distances = np.sqrt(np.sum((self.X_train - x)**2, axis=1))
         
         # 2. Use argpartition instead of argsort
         # argpartition is O(N) while argsort is O(N log N)
@@ -51,7 +51,8 @@ class CustomKNN:
         
         # 3. Vectorized indexing
         print ("Predict step 3")
-        k_nearest_labels = self.y_train[k_indices]
+        ##k_nearest_labels = self.y_train[k_indices]
+        k_nearest_labels = self.y_train[k_indices].flatten()
         
         # 4. Majority vote
         print ("Predict step 4")
