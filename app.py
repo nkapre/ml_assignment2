@@ -18,7 +18,7 @@ from models.xg_boost_model import run_xgboost
 
 st.set_page_config(page_title="Churn Classification (From Scratch)", layout="wide")
 
-st.title("📊 Customer Churn Classification - Custom Implementations")
+st.title("📊 Customer Churn Classification [Churn Kernel Inc.]]")
 st.markdown("This application uses machine learning models built from scratch without scikit-learn's estimator classes.")
 
 # Sidebar Configuration
@@ -28,6 +28,7 @@ model_choice = st.sidebar.selectbox("Select ML Model",
     ["Logistic Regression", "Decision Tree", "KNN", "Naive Bayes", "Random Forest", "XGBoost"])
 
 # Helper function to process data
+@st.cache_data
 def preprocess_data(df):
     print ("preprocessing data")
     # Drop ID and handle the target

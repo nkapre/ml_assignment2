@@ -2,18 +2,23 @@ import numpy as np
 from collections import Counter
 
 class Node:
+    __slots__ = ['feature', 'threshold', 'left', 'right', 'value']
     def __init__(self, feature=None, threshold=None, left=None, right=None, *, value=None):
         self.feature = feature
         self.threshold = threshold
         self.left = left
         self.right = right
         self.value = value
+    
 
 class CustomDecisionTree:
     def __init__(self, max_depth=10, min_samples_split=2):
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
         self.root = None
+        self.n_bins = n_bins 
+
+
 
     def fit(self, X, y):
         y = y.astype(np.float64)
@@ -42,12 +47,20 @@ class CustomDecisionTree:
         split_idx, split_thresh = None, None
         for feat_idx in feat_idxs:
             X_column = X[:, feat_idx]
-            thresholds = np.unique(X_column)
+
+            # FIX 3: Quantile Binning - Only check 20 points instead of every unique value
+            if len(X_column) > self.n_bins:
+                thresholds = np.percentile(X_column, np.linspace(0, 100, self.n_bins))
+            else:
+                thresholds = np.unique(X_column)
+
+            #thresholds = np.unique(X_column)
             for thresh in thresholds:
                 #gain = self._information_gain(y, X_column, thresh)
                 gain = self._variance_reduction(y, X_column, thresh)
                 if gain > best_gain:
                     best_gain, split_idx, split_thresh = gain, feat_idx, thresh
+
         return split_idx, split_thresh
 
     def _information_gain(self, y, X_column, thresh):
@@ -61,16 +74,30 @@ class CustomDecisionTree:
         return parent_entropy - child_entropy
 
     def _variance_reduction(self, y, X_column, thresh):
-        parent_var = np.var(y)
-        left_idxs, right_idxs = self._split(X_column, thresh)
-        if len(left_idxs) == 0 or len(right_idxs) == 0: return 0
+    #    parent_var = np.var(y)
+    #    left_idxs, right_idxs = self._split(X_column, thresh)
+    #    if len(left_idxs) == 0 or len(right_idxs) == 0: return 0
+    #    
+    #    n = len(y)
+    #    n_l, n_r = len(left_idxs), len(right_idxs)
+    #    var_l, var_r = np.var(y[left_idxs]), np.var(y[right_idxs])
+    #    
+    #    child_var = (n_l / n) * var_l + (n_r / n) * var_r
+    #    return parent_var - child_var
+
+
+        #Boolean masking is significantly faster than np.argwhere
+        left_mask = X_column <= thresh
+        right_mask = ~left_mask 
+        
+        if not np.any(left_mask) or not np.any(right_mask): 
+            return 0
         
         n = len(y)
-        n_l, n_r = len(left_idxs), len(right_idxs)
-        var_l, var_r = np.var(y[left_idxs]), np.var(y[right_idxs])
-        
-        child_var = (n_l / n) * var_l + (n_r / n) * var_r
-        return parent_var - child_var
+        n_l, n_r = np.sum(left_mask), np.sum(right_mask)
+        # FIX 5: Vectorized variance reduction calculation
+        return np.var(y) - ((n_l/n) * np.var(y[left_mask]) + (n_r/n) * np.var(y[right_mask]))
+
 
     #def _entropy(self, y):
     #    hist = np.bincount(y)
