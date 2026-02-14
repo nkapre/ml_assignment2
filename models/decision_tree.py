@@ -30,7 +30,7 @@ class CustomDecisionTree:
         n_labels = len(np.unique(y))
 
         #if (depth >= self.max_depth or n_labels == 1 or n_samples < self.min_samples_split):
-        if (depth >= self.max_depth or n_samples < self.min_samples_split or np.var(y) == 0):
+        if (depth >= self.max_depth or n_samples < self.min_samples_split or np.var(y) < 1e-7):
             #leaf_value = Counter(y).most_common(1)[0][0]
             leaf_value = np.mean(y)
             return Node(value=leaf_value)
@@ -55,7 +55,6 @@ class CustomDecisionTree:
             else:
                 thresholds = np.unique(X_column)
 
-            #thresholds = np.unique(X_column)
             for thresh in thresholds:
                 #gain = self._information_gain(y, X_column, thresh)
                 gain = self._variance_reduction(y, X_column, thresh)
@@ -110,8 +109,27 @@ class CustomDecisionTree:
         right_idxs = np.argwhere(X_column > split_thresh).flatten()
         return left_idxs, right_idxs
 
+    #def predict(self, X):
+    #    return np.array([self._traverse_tree(x, self.root) for x in X])
+
     def predict(self, X):
-        return np.array([self._traverse_tree(x, self.root) for x in X])
+        predictions = np.zeros(X.shape[0])
+        self._predict_vectorized(X, np.arange(X.shape[0]), self.root, predictions)
+        return predictions
+
+    def _predict_vectorized(self, X, indices, node, predictions):
+        if node.value is not None:
+            predictions[indices] = node.value
+            return
+
+        feat_values = X[indices, node.feature]
+        left_mask = feat_values <= node.threshold
+        
+        if np.any(left_mask):
+            self._predict_vectorized(X, indices[left_mask], node.left, predictions)
+        if np.any(~left_mask):
+            self._predict_vectorized(X, indices[~left_mask], node.right, predictions)
+
 
     def _traverse_tree(self, x, node):
         if node.value is not None: return node.value

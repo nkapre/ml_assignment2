@@ -25,21 +25,38 @@ class CustomGradientBoost:
     #        #f_m += self.lr * tree.predict(X)
     #        f_m += self.lr * tree.predict(X).astype(np.float64)
 
+    #def fit(self, X, y):
+    #    y = y.astype(np.float32) # FIX 6: Use float32 to save memory over float64
+    #    self.base_pred = np.mean(y)
+    #    f_m = np.full(len(y), self.base_pred, dtype=np.float32)
+    #
+    #    for _ in range(self.n_estimators):
+    #        # FIX 7: Subsampling (Stochastic Boosting) - Train on 70% of rows to speed up fit()
+    #        indices = np.random.choice(len(y), int(0.7 * len(y)), replace=False)
+    #        X_sub, res_sub = X[indices], (y - f_m)[indices]
+            
+    #        tree = CustomDecisionTree(max_depth=self.max_depth)
+    #        tree.fit(X_sub, res_sub)
+    #        self.trees.append(tree)
+            
+    #        # FIX 8: Update full prediction array efficiently
+    #        f_m += self.lr * tree.predict(X).astype(np.float32)
+
     def fit(self, X, y):
-        y = y.astype(np.float32) # FIX 6: Use float32 to save memory over float64
+        y = y.astype(np.float32) 
         self.base_pred = np.mean(y)
         f_m = np.full(len(y), self.base_pred, dtype=np.float32)
 
         for _ in range(self.n_estimators):
-            # FIX 7: Subsampling (Stochastic Boosting) - Train on 70% of rows to speed up fit()
-            indices = np.random.choice(len(y), int(0.7 * len(y)), replace=False)
+            # FIX 4: Use a smaller subsample for training each tree (Stochastic Boosting)
+            indices = np.random.choice(len(y), int(0.6 * len(y)), replace=False)
             X_sub, res_sub = X[indices], (y - f_m)[indices]
             
             tree = CustomDecisionTree(max_depth=self.max_depth)
             tree.fit(X_sub, res_sub)
             self.trees.append(tree)
             
-            # FIX 8: Update full prediction array efficiently
+            # FIX 5: Prediction is now vectorized, making this update step much faster
             f_m += self.lr * tree.predict(X).astype(np.float32)
 
     def predict(self, X):
