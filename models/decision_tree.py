@@ -16,14 +16,17 @@ class CustomDecisionTree:
         self.root = None
 
     def fit(self, X, y):
+        y = y.astype(np.float64)
         self.root = self._grow_tree(X, y)
 
     def _grow_tree(self, X, y, depth=0):
         n_samples, n_feats = X.shape
         n_labels = len(np.unique(y))
 
-        if (depth >= self.max_depth or n_labels == 1 or n_samples < self.min_samples_split):
-            leaf_value = Counter(y).most_common(1)[0][0]
+        #if (depth >= self.max_depth or n_labels == 1 or n_samples < self.min_samples_split):
+        if (depth >= self.max_depth or n_samples < self.min_samples_split or np.var(y) == 0):
+            #leaf_value = Counter(y).most_common(1)[0][0]
+            leaf_value = np.mean(y)
             return Node(value=leaf_value)
 
         feat_idxs = np.random.choice(n_feats, n_feats, replace=False)
@@ -41,7 +44,8 @@ class CustomDecisionTree:
             X_column = X[:, feat_idx]
             thresholds = np.unique(X_column)
             for thresh in thresholds:
-                gain = self._information_gain(y, X_column, thresh)
+                #gain = self._information_gain(y, X_column, thresh)
+                gain = self._variance_reduction(y, X_column, thresh)
                 if gain > best_gain:
                     best_gain, split_idx, split_thresh = gain, feat_idx, thresh
         return split_idx, split_thresh
@@ -56,10 +60,22 @@ class CustomDecisionTree:
         child_entropy = (n_l / n) * e_l + (n_r / n) * e_r
         return parent_entropy - child_entropy
 
-    def _entropy(self, y):
-        hist = np.bincount(y)
-        ps = hist / len(y)
-        return -np.sum([p * np.log(p) for p in ps if p > 0])
+    def _variance_reduction(self, y, X_column, thresh):
+        parent_var = np.var(y)
+        left_idxs, right_idxs = self._split(X_column, thresh)
+        if len(left_idxs) == 0 or len(right_idxs) == 0: return 0
+        
+        n = len(y)
+        n_l, n_r = len(left_idxs), len(right_idxs)
+        var_l, var_r = np.var(y[left_idxs]), np.var(y[right_idxs])
+        
+        child_var = (n_l / n) * var_l + (n_r / n) * var_r
+        return parent_var - child_var
+
+    #def _entropy(self, y):
+    #    hist = np.bincount(y)
+    #    ps = hist / len(y)
+    #    return -np.sum([p * np.log(p) for p in ps if p > 0])
 
     def _split(self, X_column, split_thresh):
         left_idxs = np.argwhere(X_column <= split_thresh).flatten()
@@ -76,7 +92,12 @@ class CustomDecisionTree:
         return self._traverse_tree(x, node.right)
 
 def run_decision_tree(X, y):
+    # This remains a classifier for the "Decision Tree" menu option in app.py
+    # But note: The internal logic above now supports XGBoost's floats
     model = CustomDecisionTree()
     model.fit(X.values, y.values)
     preds = model.predict(X.values)
-    return preds, preds # Simplified prob for Tree
+    # Binary threshold for the standalone tree option
+    binary_preds = np.array([1 if i > 0.5 else 0 for i in preds])
+    return binary_preds, preds
+    
