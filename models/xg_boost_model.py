@@ -2,7 +2,7 @@ import numpy as np
 from models.decision_tree import CustomDecisionTree
 
 class CustomGradientBoost:
-    def __init__(self, n_estimators=5, learning_rate=0.1, max_depth=3):
+    def __init__(self, n_estimators=50, learning_rate=0.1, max_depth=3):
         self.n_estimators = n_estimators
         self.lr = learning_rate
         self.max_depth = max_depth

@@ -29,13 +29,16 @@ model_choice = st.sidebar.selectbox("Select ML Model",
 
 # Helper function to process data
 def preprocess_data(df):
+    print ("preprocessing data")
     # Drop ID and handle the target
     if 'customerID' in df.columns:
         df = df.drop(columns=['customerID'])
     
     # Map Churn to binary
     if 'Churn' in df.columns:
-        df['Churn'] = df['Churn'].map({'Yes': 1, 'No': 0})
+        #df['Churn'] = df['Churn'].map({'Yes': 1, 'No': 0})
+        # Convert to string, strip spaces, and handle case-insensitivity
+        df['Churn'] = df['Churn'].astype(str).str.strip().str.lower().map({'yes': 1, 'no': 0, '1': 1, '0': 0})
     
     # Simple encoding for categorical variables
     df = pd.get_dummies(df)
@@ -45,6 +48,7 @@ def preprocess_data(df):
     return df
 
 if uploaded_file:
+    print ("Reading data file")
     data = pd.read_csv(uploaded_file)
     st.write("### Data Preview", data.head(5))
     
@@ -76,13 +80,15 @@ if uploaded_file:
             "Precision": precision_score(y, y_pred, zero_division=0),
             "Recall": recall_score(y, y_pred, zero_division=0),
             "F1 Score": f1_score(y, y_pred, zero_division=0),
-            "MCC Score": matthews_corrcoef(y, y) if len(np.unique(y)) > 1 else 0
+            #"MCC Score": matthews_corrcoef(y, y) if len(np.unique(y)) > 1 else 0
+            "MCC Score": matthews_corrcoef(y, y_pred) if len(np.unique(y)) > 1 else 0
         }
 
         # Dashboard Layout
         st.divider()
         st.subheader(f"Evaluation Metrics: {model_choice}")
         
+        print ("executing the algorithm")
         m_cols = st.columns(6)
         for i, (label, value) in enumerate(metrics.items()):
             m_cols[i].metric(label, f"{value:.4f}")
