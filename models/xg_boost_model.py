@@ -54,7 +54,7 @@ class CustomGradientBoost:
 
 def run_xgboost(X, y):
     model = CustomGradientBoost()
-    #model.fit(X.values, y.values)
+    ######model.fit(X.values, y.values)
     model.fit(X.values, y.values.astype(np.float64))
     
     return model.predict(X.values)
