@@ -10,8 +10,11 @@ class CustomGradientBoost:
         self.base_pred = None
 
     def fit(self, X, y):
+        y = y.astype(np.float64)
+
         self.base_pred = np.mean(y)
-        f_m = np.full(len(y), self.base_pred)
+        #f_m = np.full(len(y), self.base_pred)
+        f_m = np.full(len(y), self.base_pred, dtype=np.float64)
 
         for _ in range(self.n_estimators):
             # Calculate residuals
@@ -19,15 +22,22 @@ class CustomGradientBoost:
             tree = CustomDecisionTree(max_depth=self.max_depth)
             tree.fit(X, residuals)
             self.trees.append(tree)
-            f_m += self.lr * tree.predict(X)
+            #f_m += self.lr * tree.predict(X)
+            f_m += self.lr * tree.predict(X).astype(np.float64)
 
     def predict(self, X):
-        f_m = np.full(X.shape[0], self.base_pred)
+        ##f_m = np.full(X.shape[0], self.base_pred)
+        f_m = np.full(X.shape[0], self.base_pred, dtype=np.float64)
         for tree in self.trees:
-            f_m += self.lr * tree.predict(X)
-        return [1 if i > 0.5 else 0 for i in f_m], f_m
+            #f_m += self.lr * tree.predict(X)
+            f_m += self.lr * tree.predict(X).astype(np.float64)
+        
+        #return [1 if i > 0.5 else 0 for i in f_m], f_m
+        return np.array([1 if i > 0.5 else 0 for i in f_m]), f_m
 
 def run_xgboost(X, y):
     model = CustomGradientBoost()
-    model.fit(X.values, y.values)
+    #model.fit(X.values, y.values)
+    model.fit(X.values, y.values.astype(np.float64))
+    
     return model.predict(X.values)
