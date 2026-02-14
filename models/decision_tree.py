@@ -12,11 +12,12 @@ class Node:
     
 
 class CustomDecisionTree:
-    def __init__(self, max_depth=10, min_samples_split=2):
+    #def __init__(self, max_depth=10, min_samples_split=2):
+    def __init__(self, max_depth=5, min_samples_split=10, n_bins=20):
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
         self.root = None
-        self.n_bins = n_bins 
+        self.n_bins = n_bins
 
 
 
