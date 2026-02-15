@@ -1,8 +1,8 @@
 # requirements.txt
+streamlit
 numpy
 scikit-learn
 pandas
 matplotlib
 seaborn
 xgboost
-streamlit
