@@ -1,8 +1,8 @@
 # requirements.txt
-altair<5
 numpy
 scikit-learn
 pandas
 matplotlib
 seaborn
+xgboost
 streamlit
