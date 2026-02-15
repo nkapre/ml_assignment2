@@ -35,7 +35,9 @@ class CustomGaussianNB:
         eps = 1e-9
         var = var + eps
 
-        numerator = np.exp(-((x - mean)**2) / (2 * var))
+        #numerator = np.exp(-((x - mean)**2) / (2 * var))
+        exponent = -((x - mean)**2) / (2 * var)
+        numerator = np.exp(exponent)
         denominator = np.sqrt(2 * np.pi * var)
         return numerator / denominator
 
