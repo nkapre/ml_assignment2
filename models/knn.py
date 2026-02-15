@@ -40,22 +40,18 @@ class CustomKNN:
     def _predict(self, x):
         # 1. Vectorized Euclidean Distance
         # This replaces the list comprehension loop
-        print ("Predict step 1")
         distances = np.sqrt(np.sum((self.X_train - x)**2, axis=1))
         
         # 2. Use argpartition instead of argsort
         # argpartition is O(N) while argsort is O(N log N)
         # It finds the k smallest elements without sorting the whole array
-        print ("Predict step 2")
         k_indices = np.argpartition(distances, self.k)[:self.k]
         
         # 3. Vectorized indexing
-        print ("Predict step 3")
         ##k_nearest_labels = self.y_train[k_indices]
         k_nearest_labels = self.y_train[k_indices].flatten()
         
         # 4. Majority vote
-        print ("Predict step 4")
         most_common = Counter(k_nearest_labels).most_common(1)
         return most_common[0][0]
 
